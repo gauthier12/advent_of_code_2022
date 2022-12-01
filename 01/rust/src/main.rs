@@ -4,6 +4,7 @@ use std::env;
 use std::fs;
 use std::time::Instant;
 
+//Usage ./rust PATH_TO_INPUT_FILE
 fn main() {
     let start = Instant::now();
     let args: Vec<String> = env::args().collect();

@@ -12,8 +12,8 @@ fn main() {
     let filename = &args[1];
     println!("In file {}", filename);
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    let mut score_A: u32 = 0;
-    let mut score_B: u32 = 0;
+    let mut score_a: u32 = 0;
+    let mut score_b: u32 = 0;
     for line in contents.lines() {
         if let Ok((oponent, me)) = scan_fmt!(
             line,    // input string
@@ -23,87 +23,87 @@ fn main() {
             match me {
                 'X' => {
                     //pb A : I played Rock
-                    score_A += 1;
+                    score_a += 1;
                     //pb B : I need to lose
-                    score_B += 0;
+                    score_b += 0;
                     match oponent {
                         'A' => {
                             //Oponent played Rock
                             //pb A : Draw
-                            score_A += 3;
+                            score_a += 3;
                             //pb B : I need to play Scissors
-                            score_B += 3;
+                            score_b += 3;
                         }
                         'B' => {
                             //Oponent played Paper
                             //pb A : I lose
-                            score_A += 0;
+                            score_a += 0;
                             //pb B : I need to play Rock
-                            score_B += 1;
+                            score_b += 1;
                         }
                         'C' => {
                             //Oponent played Scissors
                             //pb A : I win
-                            score_A += 6;
+                            score_a += 6;
                             //pb B : I need to play Paper
-                            score_B += 2;
+                            score_b += 2;
                         }
                         _ => (),
                     }
                 }
                 'Y' => {
                     //pb A : I played Paper
-                    score_A += 2;
+                    score_a += 2;
                     //pb B : I need to draw
-                    score_B += 3;
+                    score_b += 3;
                     match oponent {
                         'A' => {
                             //Oponent played Rock
                             //pb A : I win
-                            score_A += 6;
+                            score_a += 6;
                             //pb B : I need to play Rock
-                            score_B += 1;
+                            score_b += 1;
                         }
                         'B' => {
                             //Oponent played Paper
                             //pb A : Draw
-                            score_A += 3;
+                            score_a += 3;
                             //pb B : I need to play Paper
-                            score_B += 2;
+                            score_b += 2;
                         }
                         'C' => {
                             //Oponent played Scissors
                             //pb A : I lose
-                            score_A += 0;
+                            score_a += 0;
                             //pb B : I need to play Scissors
-                            score_B += 3;
+                            score_b += 3;
                         }
                         _ => (),
                     }
                 }
                 'Z' => {
                     //pb A : I played Scissors
-                    score_A += 3;
+                    score_a += 3;
                     //pb B : I need to win
-                    score_B += 6;
+                    score_b += 6;
                     match oponent {
                         'A' => {
                             //Oponent played Rock : I lose
-                            score_A += 0;
+                            score_a += 0;
                             //pb B : I need to play Paper
-                            score_B += 2;
+                            score_b += 2;
                         }
                         'B' => {
                             //Oponent played Paper : I win
-                            score_A += 6;
+                            score_a += 6;
                             //pb B : I need to play Scissors
-                            score_B += 3;
+                            score_b += 3;
                         }
                         'C' => {
                             //Oponent played Scissors : Draw
-                            score_A += 3;
+                            score_a += 3;
                             //pb B : I need to play Rock
-                            score_B += 1;
+                            score_b += 1;
                         }
                         _ => (),
                     }
@@ -116,6 +116,6 @@ fn main() {
     }
     let duration = start.elapsed();
     println!("Time elapsed in total is: {:?}", duration);
-    println!("Problem A : final score : {:?}", score_A);
-    println!("Problem B : final score : {:?}", score_B);
+    println!("Problem A : final score : {:?}", score_a);
+    println!("Problem B : final score : {:?}", score_b);
 }

@@ -8,7 +8,11 @@ use std::time::Instant;
 fn main() {
     let start = Instant::now();
     let args: Vec<String> = env::args().collect();
-    println!("{:?}", args);
+    println!("===========================");
+    println!("  Advent Of Code 2022");
+    println!("  Day 02");
+    println!("  Rust version");
+    println!("===========================");
     let filename = &args[1];
     println!("In file {}", filename);
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");

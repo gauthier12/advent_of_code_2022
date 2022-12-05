@@ -13,11 +13,11 @@ num_pair_a = 0
 num_pair_b = 0
 with open(filename, "r") as f:
     for line in f:
-        parsed_line = parse("{}-{},{}-{}\n", line)
-        min_1 = int(parsed_line[0])
-        max_1 = int(parsed_line[1])
-        min_2 = int(parsed_line[2])
-        max_2 = int(parsed_line[3])
+        parsed_line = parse("{:d}-{:d},{:d}-{:d}\n", line)
+        min_1 = parsed_line[0]
+        max_1 = parsed_line[1]
+        min_2 = parsed_line[2]
+        max_2 = parsed_line[3]
         # an interval is included if the min and the max is inside the other interval
         if (min_1>=min_2 and max_1<=max_2) or (min_2>=min_1 and max_2<=max_1):
             num_pair_a = num_pair_a + 1

@@ -28,7 +28,7 @@ fn main() {
         if line.contains("[") {
             //This is a description of the crate piles
             let char_array: Vec<char> = line.chars().collect();
-            let pile_number = (char_array.len() + 1) / 4;
+            let pile_number = (char_array.len() + 1) / 4; //+ 1 because it is missing the last space
             crate_piles.resize(pile_number, Vec::new());
             for i_crate in 0..pile_number {
                 //Crate columns works by 4 chars "[x] ", the name of the crate is the 2nd char

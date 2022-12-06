@@ -3,17 +3,20 @@ use std::fs;
 use std::time::Instant;
 fn test_chars(char_array: &Vec<char>, i_pos: usize, number: usize) -> bool {
     if number == 0 {
-        return true;
+        true
     }
-    if i_pos + number >= char_array.len() {
-        return false;
-    } else {
-        for i_char in i_pos + 1..i_pos + number {
-            if char_array[i_pos] == char_array[i_char] {
-                return false;
+    else
+    {
+        if i_pos + number >= char_array.len() {
+            false
+        } else {
+            for i_char in i_pos + 1..i_pos + number {
+                if char_array[i_pos] == char_array[i_char] {
+                    return false;
+                }
             }
+            test_chars(&char_array, i_pos + 1, number - 1)
         }
-        return test_chars(&char_array, i_pos + 1, number - 1);
     }
 }
 
@@ -52,5 +55,4 @@ fn main() {
     println!("Time elapsed in total is: {:?}", duration);
     println!("Problem A : first character : {:?}", first_char_a);
     println!("Problem B : first character : {:?}", first_char_b);
-    //println!("Problem B : message : {:?}", message_b);
 }

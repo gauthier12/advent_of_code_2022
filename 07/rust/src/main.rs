@@ -1,23 +1,23 @@
+use std::fmt; // Import `fmt`
 #[macro_use]
 extern crate scan_fmt;
 use std::env;
 use std::fs;
-use std::rc::Weak;
 use std::time::Instant;
-#[derive(Debug)]
-enum FileType {
-    Folder,
-    File,
-}
 
 #[derive(Debug)]
-struct FileTreeElement {
+struct FSelement {
     name: String,
-    size: usize,
-    typ: FileType,
-    children: Vec<FileTreeElement>,
-    parent: Weak<FileTreeElement>,
+    path: String,
+    size: u32,
 }
+impl fmt::Display for FSelement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Use `self.number` to refer to each positional data point.
+        write!(f, "{:08} {}/{}", self.size, self.path, self.name)
+    }
+}
+
 //Usage ./rust PATH_TO_I    NPUT_FILE
 fn main() {
     let start = Instant::now();
@@ -30,71 +30,76 @@ fn main() {
     let filename = &args[1];
     println!("In file {}", filename);
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    let mut device: FileTreeElement = FileTreeElement {
-        name: '/'.to_string(),
-        size: 0,
-        typ: FileType::Folder,
-        children: Vec::new(),
-        parent: Weak::new(),
-    };
-    let mut cur_pos = &device;
+    let mut file_list: Vec<FSelement> = Vec::new();
+    let mut folder_list: Vec<FSelement> = Vec::new();
     //Read the input file
     let mut line_iter = contents.lines();
     line_iter.next();
+    let mut folder_pile: Vec<String> = Vec::new();
+    folder_pile.push("".to_string());
     for line in line_iter {
-        let first_char = line.chars().next().unwrap();
-        match first_char {
-            '$' => {
-                if line.starts_with("$ cd ") {
-                } else {
-                    if line.starts_with("$ ls ") {
-                    } else {
-                    }
-                }
-                //command
-                println!("command          {}", line);
-            }
-            'd' => {
-                //command
+        if let Ok((file_size, file_name)) = scan_fmt!(
+            line,    // input string
+            "{} {}", // format
+            u32, String
+        ) {
+            file_list.push(FSelement {
+                name: file_name,
+                path: folder_pile.join("/"),
+                size: file_size,
+            });
+        } else {
+            if line.starts_with("$ cd ") {
                 if let Ok(dir_name) = scan_fmt!(
-                    line,     // input string
-                    "dir {}", // format
+                    line,       // input string
+                    "$ cd  {}", // format
                     String
                 ) {
-                    println!(" dir         |{}|", dir_name);
-
-                } else {
-                    panic!("Error in the read line");
+                    if dir_name == ".." {
+                        folder_pile.pop();
+                    } else {
+                        folder_list.push(FSelement {
+                            name: dir_name.clone(),
+                            path: folder_pile.join("/"),
+                            size: 0,
+                        });
+                        folder_pile.push(dir_name);
+                    }
                 }
             }
-            '0'..='9' => {
-                //command
-                println!("listing of file  {}", line);
-            }
-            _ => {
-                //other choice
-                println!("other            {}", line);
-            }
         }
-        /*
-        if line.starts_with("$") {
-            //This is a linux command
-            let char_array: Vec<char> = line.chars().collect();
-            let pile_number = (char_array.len() + 1) / 4; //+ 1 because it is missing the last space
-            crate_piles.resize(pile_number, Vec::new());
-            for i_crate in 0..pile_number {
-                //Crate columns works by 4 chars "[x] ", the name of the crate is the 2nd char
-                crate_piles[i_crate].push(char_array[i_crate * 4 + 1]);
-            }
-        }
-        if line.starts_with("move") {
-            //this is a move instruction
-
-        }*/
     }
-    println!("{:?}", device);
+
+    let mut size_a = 0;
+    for folder in folder_list.iter_mut() {
+        let path = format!("{}/{}", folder.path, folder.name);
+        folder.size = file_list.iter().fold(0, |s, fse| {
+            if fse.path.starts_with(&path) {
+                s + fse.size
+            } else {
+                s
+            }
+        });
+        if folder.size < 100000 {
+            size_a += folder.size;
+        }
+    }
+
+    let total_space = 70000000;
+    let used_space: u32 = file_list.iter().fold(0, |s, v| s + v.size);
+    let free_space = total_space - used_space;
+    let update_space = 30000000;
+    let needed_space = update_space - free_space;
+    folder_list.sort_by_key(|f| f.size);
+    let mut size_b = 0;
+    for folder in folder_list.iter() {
+        if folder.size >= needed_space {
+            size_b = folder.size;
+            break;
+        }
+    }
     let duration = start.elapsed();
     println!("Time elapsed in total is: {:?}", duration);
-    //println!("Problem A : message : {:?}", message_a);
-    //println!("Problem B : message : {:?}", message_b);
+    println!("Problem A : size of the folder <100000 : {}", size_a);
+    println!("Problem B : size of the directory to delete : {}", size_b);
 }

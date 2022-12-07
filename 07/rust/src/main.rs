@@ -4,6 +4,8 @@ extern crate scan_fmt;
 use std::env;
 use std::fs;
 use std::time::Instant;
+use rayon::prelude::*;
+
 
 #[derive(Debug)]
 struct FSelement {
@@ -32,64 +34,59 @@ fn main() {
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
     let mut file_list: Vec<FSelement> = Vec::new();
     let mut folder_list: Vec<FSelement> = Vec::new();
+    //We keep a folder pile to construct the full path of the files and folders and we start it with the root folder ""
+    let mut folder_pile: Vec<String> = vec!["".to_string()];
     //Read the input file
-    let mut line_iter = contents.lines();
-    line_iter.next();
-    let mut folder_pile: Vec<String> = Vec::new();
-    folder_pile.push("".to_string());
-    for line in line_iter {
-        if let Ok((file_size, file_name)) = scan_fmt!(
-            line,    // input string
-            "{} {}", // format
-            u32, String
-        ) {
+    for line in contents.lines().skip(1) {
+        // If it starts with a number, this a file : push it to the files list
+        if let Ok((file_size, file_name)) = scan_fmt!(line, "{} {}", u32, String) {
             file_list.push(FSelement {
                 name: file_name,
                 path: folder_pile.join("/"),
                 size: file_size,
             });
         } else {
+            //if it is not a file, maybe we are changing the current folder
             if line.starts_with("$ cd ") {
-                if let Ok(dir_name) = scan_fmt!(
-                    line,       // input string
-                    "$ cd  {}", // format
-                    String
-                ) {
+                //This is a cd command
+                if let Ok(dir_name) = scan_fmt!(line, "$ cd  {}", String) {
+                    //Going one folder up
                     if dir_name == ".." {
                         folder_pile.pop();
                     } else {
+                        //Add the new folder to the list
                         folder_list.push(FSelement {
                             name: dir_name.clone(),
                             path: folder_pile.join("/"),
                             size: 0,
                         });
+                        //update the current folder path
                         folder_pile.push(dir_name);
                     }
                 }
             }
+            //In fact, we don't care about the other lines
         }
     }
-
-    let mut size_a = 0;
-    for folder in folder_list.iter_mut() {
-        let path = format!("{}/{}", folder.path, folder.name);
-        folder.size = file_list.iter().fold(0, |s, fse| {
-            if fse.path.starts_with(&path) {
-                s + fse.size
-            } else {
-                s
-            }
-        });
-        if folder.size < 100000 {
-            size_a += folder.size;
-        }
-    }
-
+    //We compute the folder size by summing all the file with the folder path in their path
+    folder_list.par_iter_mut().for_each(|f| {
+        let path = format!("{}/{}", f.path, f.name);
+        f.size=file_list.iter().fold(0, |s, fse| {
+        if fse.path.starts_with(&path) {
+            s + fse.size
+        } else {
+            s
+        }})}
+    );
+    //we compute the sum of the folder < 100000
+    let size_a:u32 = folder_list.iter().map(|f| if f.size<100000 {f.size}else{0}).sum();
+    //How much space do we need to free ?
     let total_space = 70000000;
     let used_space: u32 = file_list.iter().fold(0, |s, v| s + v.size);
     let free_space = total_space - used_space;
     let update_space = 30000000;
     let needed_space = update_space - free_space;
+    //We sort the folder by size and search the first/smallest freeing enought space
     folder_list.sort_by_key(|f| f.size);
     let mut size_b = 0;
     for folder in folder_list.iter() {
@@ -100,6 +97,6 @@ fn main() {
     }
     let duration = start.elapsed();
     println!("Time elapsed in total is: {:?}", duration);
-    println!("Problem A : size of the folder <100000 : {}", size_a);
-    println!("Problem B : size of the directory to delete : {}", size_b);
+    println!("Problem A : size of the folders <100000 : {} ", size_a);
+    println!("Problem B : size of the folder to delete : {}", size_b);
 }

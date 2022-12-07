@@ -4,9 +4,7 @@ use std::time::Instant;
 fn test_chars(char_array: &Vec<char>, i_pos: usize, number: usize) -> bool {
     if number == 0 {
         true
-    }
-    else
-    {
+    } else {
         if i_pos + number >= char_array.len() {
             false
         } else {
@@ -36,7 +34,7 @@ fn main() {
     let char_array: Vec<char> = contents.chars().collect();
     let mut first_char_a = 0;
     let size_a = 4;
-    for i_char in 0..char_array.len() - size_a-1 {
+    for i_char in 0..char_array.len() - size_a - 1 {
         if test_chars(&char_array, i_char, size_a) {
             first_char_a = i_char + size_a;
             break;
@@ -44,7 +42,7 @@ fn main() {
     }
     let mut first_char_b = 0;
     let size_b = 14;
-    for i_char in 0..char_array.len() - size_b-1 {
+    for i_char in 0..char_array.len() - size_b - 1 {
         if test_chars(&char_array, i_char, size_b) {
             first_char_b = i_char + size_b;
             break;

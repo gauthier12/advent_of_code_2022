@@ -50,7 +50,7 @@ fn main() {
             sum_b += priority(common123);
     }
     let duration = start.elapsed();
-    println!("Time elapsed in total is: {:?}", duration);
     println!("Problem A : priority sum : {:?}", sum_a);
     println!("Problem B : priority sum : {:?}", sum_b);
+    println!("Time elapsed in total is: {:?}", duration);
 }
